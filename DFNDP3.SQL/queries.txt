@@ -1,0 +1,51 @@
+/* Most popular media types in USA */
+SELECT MediaType.Name, SUM(InvoiceLine.Quantity) AS TotalQuantity
+FROM MediaType
+INNER JOIN Track
+ON Track.MediaTypeId = MediaType.MediaTypeId
+INNER JOIN InvoiceLine
+ON InvoiceLine.TrackId = Track.TrackId
+INNER JOIN Invoice
+ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+INNER JOIN Customer
+ON Customer.CustomerId = Invoice.CustomerId
+WHERE Customer.Country = "USA"
+GROUP BY MediaType.MediaTypeId
+ORDER BY TotalQuantity
+;
+/* top 10 genres in sales */
+SELECT Genre.Name, SUM(InvoiceLine.Quantity*InvoiceLine.UnitPrice) AS Sales
+FROM InvoiceLine
+INNER JOIN Invoice
+ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+INNER JOIN Track
+ON Track.TrackId = InvoiceLine.TrackId
+INNER JOIN Genre
+ON Genre.GenreId = Track.GenreId
+GROUP BY Genre.GenreId
+ORDER BY Sales DESC
+LIMIT 10
+;
+/* top 10 most sold rock albums */
+SELECT Album.Title, SUM(InvoiceLine.Quantity*InvoiceLine.UnitPrice) AS Sales
+FROM InvoiceLine
+INNER JOIN Track
+ON Track.TrackId = InvoiceLine.TrackId
+INNER JOIN Album
+ON Album.AlbumId = Track.AlbumId
+INNER JOIN Genre
+ON Genre.Name = "Rock" AND Genre.GenreId = Track.GenreId
+GROUP BY Album.AlbumId
+ORDER BY Sales DESC
+LIMIT 10
+;
+/* avg. total per invoice per country in year 2010 */
+SELECT Customer.Country, AVG(Invoice.Total) AS AvgTotal
+FROM Customer
+INNER JOIN Invoice
+ON Invoice.CustomerId = Customer.CustomerId
+WHERE Invoice.InvoiceDate BETWEEN "2010-01-01" AND "2011-01-01"
+GROUP BY Customer.Country
+ORDER BY AvgTotal DESC
+LIMIT 10
+;
